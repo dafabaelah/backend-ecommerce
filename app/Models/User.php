@@ -44,4 +44,19 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
+    /**
+     * products
+     *
+     * @return void
+     */
+
+    // mendefinisikan relasi one-to-many dengan model Product
+    // relasi dari tabel user ke tabel product
+    // one to many adalah satu user bisa memiliki banyak product
+
+    public function products() 
+    {
+        return $this->hasMany(Product::class);
+    }
 }
