@@ -40,6 +40,12 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+
+        'api_admin' => [
+            'driver' => 'jwt', // untuk mendefinisikan bahwa kita menggunakan JWT sebagai driver
+            'provider' => 'users', // untuk mendefinisikan bahwa kita menggunakan provider users
+            'hash' => false, // untuk mendefinisikan bahwa kita tidak menggunakan hash
+        ],
     ],
 
     /*
