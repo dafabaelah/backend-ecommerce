@@ -51,9 +51,15 @@ jobs:
         mysql --user=root --password=root --host=127.0.0.1 --execute="CREATE DATABASE ecommerce_db;"
         mysql --user=root --password=root --host=127.0.0.1 --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';"
       env:
-        MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        MYSQL_ALLOW_EMPTY_PASSWORD: no
 
     - name: Run migrations
+      env:
+          DB_CONNECTION: mysql
+          DB_DATABASE: ecommerce_db
+          DB_USERNAME: root
+          DB_PASSWORD: root
+          DB_HOST: 127.0.0.1
       run: php artisan migrate --force
 
     - name: Run tests
