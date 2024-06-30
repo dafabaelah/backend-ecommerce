@@ -46,6 +46,12 @@ return [
             'provider' => 'users', // untuk mendefinisikan bahwa kita menggunakan provider users
             'hash' => false, // untuk mendefinisikan bahwa kita tidak menggunakan hash
         ],
+
+        'api_customer' => [
+            'driver' => 'jwt',
+            'provider' => 'customers',
+            'hash' => false,
+        ],
     ],
 
     /*
@@ -75,6 +81,10 @@ return [
         //     'driver' => 'database',
         //     'table' => 'users',
         // ],
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => env('AUTH_MODEL', App\Models\Customer::class),
+        ]
     ],
 
     /*
