@@ -51,7 +51,7 @@ class Product extends Model
     protected function image(): Attribute
     {
         return Attribute::make(
-            get: fn ($value) => url('/storage/products' . $value),
+            get: fn ($value) => url('/storage/products/' . $value),
         );
     }
     
