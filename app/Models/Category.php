@@ -44,10 +44,10 @@ class Category extends Model
     // method image() digunakan untuk mengubah nilai dari field image sebelum ditampilkan ke user
     // method ini akan mengembalikan url dari image yang disimpan di storage
     
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => url('/storage/categories/' . $value),
-        );
-    }
+    // protected function image(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => url('/storage/categories/' . $value),
+    //     );
+    // }
 }

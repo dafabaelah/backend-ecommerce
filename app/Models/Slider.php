@@ -19,10 +19,10 @@ class Slider extends Model
         'image', 'link'
     ];
 
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => url('/storage/sliders/' . $value),
-        );
-    }
+    // protected function image(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => url('/storage/sliders/' . $value),
+    //     );
+    // }
 }

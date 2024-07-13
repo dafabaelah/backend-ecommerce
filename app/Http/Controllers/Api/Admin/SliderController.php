@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\SliderResource;
 use App\Models\Slider;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -41,13 +42,28 @@ class SliderController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/sliders', $image->hashName());
+        // to base64
+        $image = $request->file('image')->getRealPath();
+        $image_base64 = base64_encode(file_get_contents($image));
+
+        // dd($image_base64);
+
+        // upload to cloudinary
+        $uploadedFile = Cloudinary::upload('data:image/png;base64,' . $image_base64, [
+            'folder' => 'slider',
+            'quality' => 'auto',
+            'fetch_format' => 'auto',
+        ]);
+
+        $uploadedFileUrl = $uploadedFile->getSecurePath();
+
+        // //upload image
+        // $image = $request->file('image');
+        // $image->storeAs('public/sliders', $image->hashName());
 
         //create slider
         $slider = Slider::create([
-            'image'=> $image->hashName(),
+            'image'=> $uploadedFileUrl,
             'link' => $request->link,
         ]);
 
@@ -68,8 +84,12 @@ class SliderController extends Controller
      */
     public function destroy(Slider $slider)
     {
+        $publicId = 'slider/' . pathinfo(parse_url($slider->image, PHP_URL_PATH), PATHINFO_FILENAME);
+        // dd($publicId);
+        Cloudinary::destroy($publicId);
+        
         //remove image
-        Storage::disk('local')->delete('public/sliders/'.basename($slider->image));
+        // Storage::disk('local')->delete('public/sliders/'.basename($slider->image));
 
         if($slider->delete()) {
             //return success with Api Resource

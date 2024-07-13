@@ -43,17 +43,17 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
     
-    /**
-     * image
-     *
-     * @return Attribute
-     */
-    protected function image(): Attribute
-    {
-        return Attribute::make(
-            get: fn ($value) => url('/storage/products/' . $value),
-        );
-    }
+    // /**
+    //  * image
+    //  *
+    //  * @return Attribute
+    //  */
+    // protected function image(): Attribute
+    // {
+    //     return Attribute::make(
+    //         get: fn ($value) => url('/storage/products/' . $value),
+    //     );
+    // }
     
     /**
      * reviewAvgRating

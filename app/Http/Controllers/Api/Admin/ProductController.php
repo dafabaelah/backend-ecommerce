@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use Illuminate\Support\Str;
 use App\Http\Resources\ProductResource;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,13 +47,28 @@ class ProductController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
+        // to base64
+        $image = $request->file('image')->getRealPath();
+        $image_base64 = base64_encode(file_get_contents($image));
+
+        // dd($image_base64);
+
+        // upload to cloudinary
+        $uploadedFile = Cloudinary::upload('data:image/png;base64,' . $image_base64, [
+            'folder' => 'product',
+            'quality' => 'auto',
+            'fetch_format' => 'auto',
+        ]);
+
+        $uploadedFileUrl = $uploadedFile->getSecurePath();
+
         //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/products', $image->hashName());
+        // $image = $request->file('image');
+        // $image->storeAs('public/products', $image->hashName());
 
         //create product
         $product = Product::create([
-            'image'         => $image->hashName(),
+            'image'         => $uploadedFileUrl,
             'title'         => $request->title,
             'slug'          => Str::slug($request->title, '-'),
             'category_id'   => $request->category_id,
@@ -118,16 +134,39 @@ class ProductController extends Controller
         //check image update
         if ($request->file('image')) {
 
+            // Remove old image from Cloudinary if exists
+            if ($product->image) {
+                // $publicId = pathinfo(parse_url($product->image, PHP_URL_PATH), PATHINFO_FILENAME);
+                $publicId = 'product/' . pathinfo(parse_url($product->image, PHP_URL_PATH), PATHINFO_FILENAME);
+                // dd($publicId);
+                Cloudinary::destroy($publicId);
+            }
+
+            // to base64
+            $image = $request->file('image')->getRealPath();
+            $image_base64 = base64_encode(file_get_contents($image));
+
+            // dd($image_base64);
+
+            // upload to cloudinary
+            $uploadedFile = Cloudinary::upload('data:image/png;base64,' . $image_base64, [
+                'folder' => 'product',
+                'quality' => 'auto',
+                'fetch_format' => 'auto',
+            ]);
+
+            $uploadedFileUrl = $uploadedFile->getSecurePath();
+
             //remove old image
-            Storage::disk('local')->delete('public/products/'.basename($product->image));
+            // Storage::disk('local')->delete('public/products/'.basename($product->image));
         
             //upload new image
-            $image = $request->file('image');
-            $image->storeAs('public/products', $image->hashName());
+            // $image = $request->file('image');
+            // $image->storeAs('public/products', $image->hashName());
 
             //update product with new image
             $product->update([
-                'image'         => $image->hashName(),
+                'image'         => $uploadedFileUrl,
                 'title'         => $request->title,
                 'slug'          => Str::slug($request->title, '-'),
                 'category_id'   => $request->category_id,
@@ -171,8 +210,11 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        $publicId = 'product/' . pathinfo(parse_url($product->image, PHP_URL_PATH), PATHINFO_FILENAME);
+        // dd($publicId);
+        Cloudinary::destroy($publicId);
         //remove image
-        Storage::disk('local')->delete('public/products/'.basename($product->image));
+        // Storage::disk('local')->delete('public/products/'.basename($product->image));
 
         if($product->delete()) {
             //return success with Api Resource

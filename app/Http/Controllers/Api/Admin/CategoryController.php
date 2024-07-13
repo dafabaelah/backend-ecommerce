@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class CategoryController extends Controller
 {
@@ -45,13 +46,31 @@ class CategoryController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        //upload image
-        $image = $request->file('image');
-        $image->storeAs('public/categories', $image->hashName());
+        // to base64
+        $image = $request->file('image')->getRealPath();
+        $image_base64 = base64_encode(file_get_contents($image));
+
+        // dd($image_base64);
+
+        // upload to cloudinary
+        $uploadedFile = Cloudinary::upload('data:image/png;base64,' . $image_base64, [
+            'folder' => 'category',
+            'quality' => 'auto',
+            'fetch_format' => 'auto',
+        ]);
+
+        $uploadedFileUrl = $uploadedFile->getSecurePath();
+        // $uploadedFilePath = $uploadedFile->getPublicId();
+
+        // dd($uploadedFileUrl, $uploadedFilePath);
+
+        // //upload image
+        // $image = $request->file('image');
+        // $image->storeAs('public/categories', $image->hashName());
 
         //create category
         $category = Category::create([
-            'image'=> $image->hashName(),
+            'image'=> $uploadedFileUrl,
             'name' => $request->name,
             'slug' => Str::slug($request->name, '-'),
         ]);
@@ -95,6 +114,7 @@ class CategoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name'     => 'required|unique:categories,name,'.$category->id,
+            'image'    => 'required|image|mimes:jpeg,jpg,png|max:2000',
         ]);
 
         if ($validator->fails()) {
@@ -104,16 +124,42 @@ class CategoryController extends Controller
         //check image update
         if ($request->file('image')) {
 
+            // Remove old image from Cloudinary if exists
+            if ($category->image) {
+                // $publicId = pathinfo(parse_url($category->image, PHP_URL_PATH), PATHINFO_FILENAME);
+                $publicId = 'category/' . pathinfo(parse_url($category->image, PHP_URL_PATH), PATHINFO_FILENAME);
+                // dd($publicId);
+                Cloudinary::destroy($publicId);
+            }
+
+            // to base64
+            $image = $request->file('image')->getRealPath();
+            $image_base64 = base64_encode(file_get_contents($image));
+
+            // dd($image_base64);
+
+            // upload to cloudinary
+            $uploadedFile = Cloudinary::upload('data:image/png;base64,' . $image_base64, [
+                'folder' => 'category',
+                'quality' => 'auto',
+                'fetch_format' => 'auto',
+            ]);
+
+            $uploadedFileUrl = $uploadedFile->getSecurePath();
+            // $uploadedFilePath = $uploadedFile->getPublicId();
+
+            // dd($uploadedFileUrl, $uploadedFilePath);
+
             //remove old image
-            Storage::disk('local')->delete('public/categories/'.basename($category->image));
+            // Storage::disk('local')->delete('public/categories/'.basename($category->image));
         
-            //upload new image
-            $image = $request->file('image');
-            $image->storeAs('public/categories', $image->hashName());
+            // //upload new image
+            // $image = $request->file('image');
+            // $image->storeAs('public/categories', $image->hashName());
 
             //update category with new image
             $category->update([
-                'image'=> $image->hashName(),
+                'image'=> $uploadedFileUrl,
                 'name' => $request->name,
                 'slug' => Str::slug($request->name, '-'),
             ]);
@@ -143,8 +189,15 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //remove image
-        Storage::disk('local')->delete('public/categories/'.basename($category->image));
+        // $publicId = pathinfo(parse_url($category->image, PHP_URL_PATH), PATHINFO_FILENAME);
+        $publicId = 'category/' . pathinfo(parse_url($category->image, PHP_URL_PATH), PATHINFO_FILENAME);
+        // dd($publicId);
+        Cloudinary::destroy($publicId);
+
+        // dd($del);
+        
+        // //remove image
+        // Storage::disk('local')->delete('public/categories/'.basename($category->image));
 
         if($category->delete()) {
             //return success with Api Resource
