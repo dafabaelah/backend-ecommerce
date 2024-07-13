@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redis;
 
 class CategoryController extends Controller
 {
@@ -16,10 +17,24 @@ class CategoryController extends Controller
      */
     public function index()
     {
+
+        $categories = Redis::get('categories_web');
+
+        if (!$categories) {
+            // Jika data tidak ada di Redis, ambil dari database dan simpan di Redis
+            $categories = Category::latest()->get();
+
+            // Simpan data ke Redis dengan waktu expired 1 jam
+            Redis::setex('categories_web', 3600, serialize($categories));
+        } else {
+            // Jika data ada di Redis, ambil dari cache dan deserialize data
+            $categories = unserialize($categories);
+        }
+
         //get categories
         // $categories, untuk mengambil data categories dengan menggunakan model Category, get() untuk mengambil semua data categories
 
-        $categories = Category::latest()->get();
+        // $categories = Category::latest()->get();
         
         //return with Api Resource
         return new CategoryResource(true, 'List Data Categories', $categories);

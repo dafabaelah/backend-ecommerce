@@ -12,6 +12,7 @@
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
         "midtrans/midtrans-php": "2.5.2",
+        "predis/predis": "^2.0",
         "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {

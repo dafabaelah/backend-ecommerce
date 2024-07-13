@@ -8,6 +8,7 @@ use App\Models\City;
 use App\Models\Province;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Redis;
 
 class RajaOngkirController extends Controller
 {
@@ -18,8 +19,22 @@ class RajaOngkirController extends Controller
      */
     public function getProvinces()
     {
+
+        $provinces = Redis::get('provinces_web');
+
+        if (!$provinces) {
+            // Jika data tidak ada di Redis, ambil dari database dan simpan di Redis
+            $provinces = Province::all();
+
+            // Simpan data ke Redis dengan waktu expired 1 jam
+            Redis::setex('provinces_web', 3600, serialize($provinces));
+        } else {
+            // Jika data ada di Redis, ambil dari cache dan deserialize data
+            $provinces = unserialize($provinces);
+        }
+
         //get all provinces
-        $provinces = Province::all();
+        // $provinces = Province::all();
 
         //return with Api Resource
         return new RajaOngkirResource(true, 'List Data Provinces', $provinces);

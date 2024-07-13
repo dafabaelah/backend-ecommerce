@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Redis;
 
 class CategoryController extends Controller
 {
@@ -20,10 +21,32 @@ class CategoryController extends Controller
      */
     public function index()
     {
+
+        // cek apakah ada query string q
+        $cacheKey = 'categories_' . request()->q;
+        // Cek apakah data ada di cache
+        if (Redis::exists($cacheKey)) {
+            // Ambil data dari cache
+            $categories = json_decode(Redis::get($cacheKey));
+        } else {
+            // Jika tidak ada di cache, query ke database
+            $categories = Category::when(request()->q, function($categories) {
+                $categories = $categories->where('name', 'like', '%'. request()->q . '%');
+            })->latest()->paginate(5);
+
+            // Simpan hasil query ke cache dengan waktu kadaluwarsa (misalnya 60 detik)
+            Redis::set($cacheKey, $categories->toJson());
+            Redis::expire($cacheKey, 600);
+        }
+
+        // versi sebelum menggunakan cache
+
         //get categories
-        $categories = Category::when(request()->q, function($categories) {
-            $categories = $categories->where('name', 'like', '%'. request()->q . '%');
-        })->latest()->paginate(5);
+        // $categories = Category::when(request()->q, function($categories) {
+        //     $categories = $categories->where('name', 'like', '%'. request()->q . '%');
+        // })->latest()->paginate(5);
+
+        // dd($categories);
         
         //return with Api Resource
         return new CategoryResource(true, 'List Data Categories', $categories);

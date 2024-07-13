@@ -8,6 +8,7 @@ use App\Models\Product;
 use Illuminate\Support\Str;
 use App\Http\Resources\ProductResource;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
@@ -15,10 +16,27 @@ class ProductController extends Controller
 {
     public function index()
     {
+        // cek apakah ada query string q
+        $cacheKey = 'products_' . request()->q;
+        // Cek apakah data ada di cache
+        if (Redis::exists($cacheKey)) {
+            // Ambil data dari cache
+            $products = json_decode(Redis::get($cacheKey));
+        } else {
+            // Jika tidak ada di cache, query ke database
+            $products = Product::with('category')->when(request()->q, function($products) {
+                $products = $products->where('title', 'like', '%'. request()->q . '%');
+            })->latest()->paginate(5);
+
+            // Simpan hasil query ke cache dengan waktu kadaluwarsa (misalnya 60 detik)
+            Redis::set($cacheKey, $products->toJson());
+            Redis::expire($cacheKey, 600);
+        }
+
         //get products
-        $products = Product::with('category')->when(request()->q, function($products) {
-            $products = $products->where('title', 'like', '%'. request()->q . '%');
-        })->latest()->paginate(5);
+        // $products = Product::with('category')->when(request()->q, function($products) {
+        //     $products = $products->where('title', 'like', '%'. request()->q . '%');
+        // })->latest()->paginate(5);
         
         //return with Api Resource
         return new ProductResource(true, 'List Data Products', $products);
