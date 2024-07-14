@@ -48,11 +48,36 @@ class RajaOngkirController extends Controller
      */
     public function getCities(Request $request)
     {   
-        //get province name
-        $province = Province::where('province_id', $request->province_id)->first();
 
-        //get cities by province
-        $cities = City::where('province_id', $request->province_id)->get();
+        $cacheKey = 'cities_province_' . $request->province_id;
+
+        // cek apakah data ada di cache
+        if (Redis::exists($cacheKey)) {
+            // ambil data dari cache
+            $cities = json_decode(Redis::get($cacheKey));
+            $province = Province::where('province_id', $request->province_id)->first();
+            // dd($province);
+        } else {
+            // jika tidak ada di cache, query ke database
+            $province = Province::where('province_id', $request->province_id)->first();
+
+            if (!$province) {
+                // Rreturn error message if province not found
+                return new RajaOngkirResource(false, 'Province not found', null);
+            }
+
+            $cities = City::where('province_id', $request->province_id)->get();
+
+            // Store query result in cache
+            Redis::set($cacheKey, $cities->toJson());
+            Redis::expire($cacheKey, 600);
+        }
+
+        // //get province name
+        // $province = Province::where('province_id', $request->province_id)->first();
+
+        // //get cities by province
+        // $cities = City::where('province_id', $request->province_id)->get();
 
         //return with Api Resource
         return new RajaOngkirResource(true, 'List Data City By Province : '.$province->name.'', $cities);
@@ -73,7 +98,7 @@ class RajaOngkirController extends Controller
         ])->post('https://api.rajaongkir.com/starter/cost', [
 
             //send data
-            'origin'      => 113, // ID kota Demak
+            'origin'      => 149, // ID kota Demak
             'destination' => $request->destination,
             'weight'      => $request->weight,
             'courier'     => $request->courier    

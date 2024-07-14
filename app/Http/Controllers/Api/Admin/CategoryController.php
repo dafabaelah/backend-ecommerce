@@ -23,7 +23,7 @@ class CategoryController extends Controller
     {
 
         // cek apakah ada query string q
-        $cacheKey = 'categories_' . request()->q;
+        $cacheKey = 'categories_' . request()->q. '_page_' . request()->get('page', 1);
         // Cek apakah data ada di cache
         if (Redis::exists($cacheKey)) {
             // Ambil data dari cache
@@ -41,7 +41,7 @@ class CategoryController extends Controller
 
         // versi sebelum menggunakan cache
 
-        //get categories
+        // get categories
         // $categories = Category::when(request()->q, function($categories) {
         //     $categories = $categories->where('name', 'like', '%'. request()->q . '%');
         // })->latest()->paginate(5);

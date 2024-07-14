@@ -17,7 +17,7 @@ class ProductController extends Controller
     public function index()
     {
         // cek apakah ada query string q
-        $cacheKey = 'products_' . request()->q;
+        $cacheKey = 'products_' . request()->q.'_page_' . request()->get('page', 1);
         // Cek apakah data ada di cache
         if (Redis::exists($cacheKey)) {
             // Ambil data dari cache
@@ -37,6 +37,8 @@ class ProductController extends Controller
         // $products = Product::with('category')->when(request()->q, function($products) {
         //     $products = $products->where('title', 'like', '%'. request()->q . '%');
         // })->latest()->paginate(5);
+
+        // dd($products);
         
         //return with Api Resource
         return new ProductResource(true, 'List Data Products', $products);

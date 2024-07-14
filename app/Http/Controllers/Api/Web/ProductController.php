@@ -18,7 +18,7 @@ class ProductController extends Controller
     public function index()
     {
         // cek apakah ada query string q
-        $cacheKey = 'products_web' . request()->q;
+        $cacheKey = 'products_web' . request()->q.'_page_' . request()->get('page', 1);
         // Cek apakah data ada di cache
         if (Redis::exists($cacheKey)) {
             // Ambil data dari cache
@@ -34,7 +34,7 @@ class ProductController extends Controller
 
             // Simpan hasil query ke cache dengan waktu kadaluwarsa (misalnya 60 detik)
             Redis::set($cacheKey, $products->toJson());
-            Redis::expire($cacheKey, 3600);
+            Redis::expire($cacheKey, 600);
         }
 
 
