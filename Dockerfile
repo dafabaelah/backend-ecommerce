@@ -45,7 +45,7 @@ COPY . /var/www
 COPY --chown=www-data:www-data . /var/www
 
 # Ensure .env is not overwritten
-COPY ./env.example /var/www/.env
+# COPY ./env.example /var/www/.env
 
 # Change current user to www
 USER www-data
