@@ -1,56 +1,55 @@
-# Use the official PHP 8.3 image as base
-FROM php:8.3.8-fpm-alpine
+# Gunakan base image PHP 8.3 dengan FPM berbasis Alpine
+FROM php:8.3-fpm-alpine
 
 # Set working directory
 WORKDIR /var/www
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    libpng-dev \
-    libjpeg-dev \
-    libfreetype6-dev \
-    locales \
-    zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
-    unzip \
-    git \
-    curl \
-    libonig-dev \
-    libxml2-dev \
-    libzip-dev \
-    zip \
-    nginx \
-    supervisor
+# Install dependensi dan ekstensi PHP yang diperlukan
+RUN apk --no-cache add \
+        nginx \
+        supervisor \
+        libpng-dev \
+        libjpeg-turbo-dev \
+        freetype-dev \
+        zip \
+        libzip-dev \
+        unzip \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && apk add --no-cache --virtual .build-deps $PHPIZE_DEPS \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apk del .build-deps
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+# Install composer
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+    && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+    && php -r "unlink('composer-setup.php');"
 
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip redis json mysqli
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copy nginx configuration file
-COPY ./nginx.conf /etc/nginx/sites-available/default
-
-# Supervisor configuration
-COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Copy existing application directory contents
+# Copy isi direktori aplikasi yang ada
 COPY . /var/www
 
-# Copy existing application directory permissions
-COPY --chown=www-data:www-data . /var/www
+# Salin konfigurasi Nginx
+COPY ./nginx.conf /etc/nginx/nginx.conf
+COPY ./default.conf /etc/nginx/conf.d/default.conf
 
-# Ensure .env is not overwritten
-# COPY ./env.example /var/www/.env
+# Pastikan .env tidak ditimpa
+COPY ./.env.example /var/www/.env
 
-# Change current user to www
-USER www-data
+RUN apk add --no-cache bash
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000 80
+# Ubah kepemilikan direktori aplikasi
+RUN chown -R www-data:www-data /var/www
 
-CMD ["/usr/bin/supervisord"]
+# Ekspos port
+EXPOSE 80
+
+# Konfigurasi Supervisor
+COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+# Install dependencies using composer
+RUN composer install --no-dev --optimize-autoloader
+
+# Perintah untuk menjalankan Supervisor
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
