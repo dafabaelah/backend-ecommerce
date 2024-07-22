@@ -1,3 +1,48 @@
+# Mi Store - Portofolio Backend REST API
+
+This is the Mi Store website, an e-commerce platform for buying and selling electronic goods for Xiaomi's distributor store. It offers a wide range of Xiaomi products that can be delivered all over Indonesia and supports online payment methods.
+
+## Tech Stack
+
+![Laravel](https://img.shields.io/badge/laravel-framework-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Cloudinary Laravel](https://img.shields.io/badge/cloudinary--laravel-library-0054A6?style=for-the-badge&logo=cloudinary&logoColor=white)
+![Guzzle](https://img.shields.io/badge/guzzle-library-6E9FCA?style=for-the-badge&logo=guzzle&logoColor=white)
+![Laravel Sanctum](https://img.shields.io/badge/laravel%20sanctum-library-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Laravel Tinker](https://img.shields.io/badge/laravel%20tinker-library-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Midtrans PHP](https://img.shields.io/badge/midtrans%20php-library-009CDE?style=for-the-badge&logo=midtrans&logoColor=white)
+![Predis](https://img.shields.io/badge/predis-library-44A833?style=for-the-badge&logo=redis&logoColor=white)
+![JWT Auth](https://img.shields.io/badge/jwt%20auth-library-000000?style=for-the-badge&logo=json-web-tokens&logoColor=white)
+![Faker](https://img.shields.io/badge/faker-library-EF5B0C?style=for-the-badge&logo=faker&logoColor=white)
+![Pint](https://img.shields.io/badge/pint-tool-9B0E55?style=for-the-badge&logo=pint&logoColor=white)
+![Sail](https://img.shields.io/badge/sail-tool-1D6294?style=for-the-badge&logo=laravel&logoColor=white)
+![Mockery](https://img.shields.io/badge/mockery-library-7A41BD?style=for-the-badge&logo=mockery&logoColor=white)
+![Collision](https://img.shields.io/badge/collision-library-1F7F8D?style=for-the-badge&logo=collision&logoColor=white)
+
+### Frameworks & Libraries
+
+- **Laravel**: A robust PHP framework designed for building web applications with an elegant syntax and various built-in tools and features for routing, authentication, and database management.
+- **Cloudinary Laravel:** A Laravel package that provides integration with Cloudinary, a cloud service that offers image and video upload, storage, manipulation, and delivery.
+- **Guzzle**: A PHP HTTP client that makes it easy to send HTTP requests and integrate with web services. It provides a simple interface for building and sending HTTP requests.
+- **Laravel Sanctum**: A simple package that provides a featherweight authentication system for SPAs (single page applications), mobile applications, and simple token-based APIs.
+- **Laravel Tinker**: An interactive command-line tool for Laravel, powered by PsySH, allowing you to interact with your entire Laravel application, including the Eloquent ORM and jobs.
+- **Midtrans PHP**: A PHP library for integrating Midtrans, an online payment gateway that allows merchants to accept various payment methods securely.
+- **Predis**: A flexible and feature-complete Redis client library for PHP, allowing you to interact with Redis databases with ease.
+- **JWT Auth**: A PHP library that provides a simple way to authenticate users using JSON Web Tokens (JWT) in a Laravel application.
+- **Faker**: A PHP library that generates fake data for you, useful for populating databases with realistic data during development and testing.
+- **Pint**: A PHP code style fixer for Laravel, ensuring your code adheres to the style standards defined in your project.
+- **Sail**: A command-line interface for interacting with Laravel’s Docker development environment, making it easy to manage your Docker containers and services.
+- **Mockery**: A PHP mocking library used for creating mock objects in unit tests, allowing you to test your code in isolation.
+- **Collision**: A detailed error handler for the command-line interface (CLI) in Laravel applications, providing a better debugging experience with rich error messages and stack traces.
+
+## Design REST API
+### Database
+![Database](./screenshots/database.png)
+
+### Postman Collection
+[![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)](https://documenter.getpostman.com/view/24645591/2sA3kUJ345)
+
+## About Laravel
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
@@ -6,8 +51,6 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
-
-## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
 
